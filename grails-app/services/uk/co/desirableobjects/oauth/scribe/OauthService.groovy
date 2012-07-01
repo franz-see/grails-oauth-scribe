@@ -11,7 +11,6 @@ import org.scribe.model.Token
 import org.scribe.model.Verifier
 import org.scribe.model.Verb
 import org.scribe.model.Response
-import org.scribe.model.SignatureType
 import uk.co.desirableobjects.oauth.scribe.exception.UnknownProviderException
 import uk.co.desirableobjects.oauth.scribe.util.DynamicMethods
 
@@ -62,7 +61,7 @@ class OauthService {
     private void buildService(ConfigObject conf) {
 
         boolean debug = (conf.debug) ?: false
-        
+
         conf.providers.each { configuration ->
 
                 verifyConfiguration(configuration)
@@ -71,25 +70,16 @@ class OauthService {
                 LinkedHashMap providerConfig = configuration.value
 
                 Class api = providerConfig.api
-                String callback = providerConfig.containsKey('callback') ? providerConfig.callback : null
-                SignatureType signatureType = providerConfig.containsKey('signatureType') ? providerConfig.signatureType : null
-                String scope = providerConfig.containsKey('scope') ? providerConfig.scope : null
 
                 ServiceBuilder serviceBuilder = new ServiceBuilder()
                         .provider(api)
                         .apiKey(providerConfig.key as String)
                         .apiSecret(providerConfig.secret as String)
 
-                if (callback) {
-                    serviceBuilder.callback(callback)
-                }
+                SimpleChainSetter serviceBuilderChainSetter = new SimpleChainSetter()
 
-                if (signatureType) {
-                    serviceBuilder.signatureType(signatureType)
-                }
-
-                if (scope) {
-                    serviceBuilder.scope(scope)
+                providerConfig.entrySet().each { propName, propValue ->
+                    serviceBuilderChainSetter.chain(propName,propValue)
                 }
 
                 if (debug) {
