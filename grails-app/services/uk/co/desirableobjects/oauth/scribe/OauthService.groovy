@@ -76,10 +76,14 @@ class OauthService {
                         .apiKey(providerConfig.key as String)
                         .apiSecret(providerConfig.secret as String)
 
-                SimpleChainSetter serviceBuilderChainSetter = new SimpleChainSetter()
+                ChainSetter serviceBuilderChainSetter = new ChainSetter(serviceBuilder)
 
-                providerConfig.entrySet().each { propName, propValue ->
-                    serviceBuilderChainSetter.chain(propName,propValue)
+                providerConfig.each { propName, propValue ->
+                    println "${propName}=${propValue}"
+                }
+
+                providerConfig.each { propName, propValue ->
+                    serviceBuilderChainSetter.chain(propName,[propValue])
                 }
 
                 if (debug) {
